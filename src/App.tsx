@@ -13,7 +13,7 @@ function App() {
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [selectedHistory, setSelectedHistory] = useState<string[]>([]);
   
   const [playTick] = useSound('./tick.mp3', { 
     volume: 0.5
@@ -71,7 +71,8 @@ function App() {
       const finalIndex = Math.floor(Math.random() * names.length);
       const finalName = names[finalIndex];
       setSelectedName(finalName);
-      setNames((prevNames) => prevNames.filter((name) => name !== finalName)); // Remove selected name
+      setNames((prevNames) => prevNames.filter((name) => name !== finalName));
+      setSelectedHistory((prev) => [...prev, finalName]); // Add to history
       setIsSpinning(false);
       setTimeRemaining(0);
       playWin();
@@ -89,6 +90,7 @@ function App() {
       const text = await response.text();
       const loadedNames = text.split('\n').filter(name => name.trim() !== '');
       setNames(loadedNames);
+      setSelectedHistory([]); // Clear history when resetting
     } catch (error) {
       console.error('Error loading names:', error);
     }
@@ -191,6 +193,19 @@ function App() {
             </Button>
           </div>
         </Card>
+
+        {selectedHistory.length > 0 && (
+          <Card className="mt-8 p-6 bg-white shadow-xl">
+            <h2 className="text-xl font-semibold text-blue-900 mb-4">Previously Selected Names:</h2>
+            <div className="text-gray-600">
+              {selectedHistory.map((name, index) => (
+                <div key={index} className="py-1">
+                  {index + 1}. {name}
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );
