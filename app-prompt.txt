@@ -1,0 +1,3 @@
+Scaffold UI with Shadcn
+Create an app called “Who is next?”.  It will take a list of names of people to pick from.  Keep it limited to 1000 names.  After that give a message saying you have reached the 1000 name limit.  Initialize the list with 10 random first names.  When user clicks the button, it should start the random selection process.
+When clicking “Pick Random Name”, show a clock and let it spin for about 7 seconds.  Keep a ticking sound while it’s spinning.  When time is up, declare “And the person selected to be next is :   ?’ and repalce ? with the selected winner along with confetti and “hooray type” sound.
