@@ -12,6 +12,7 @@ function App() {
   const [newName, setNewName] = useState('');
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
   
   const [playTick] = useSound('./tick.mp3', { 
@@ -52,17 +53,25 @@ function App() {
     if (names.length === 0) return;
     
     setIsSpinning(true);
+    setTimeRemaining(7);
+    
     const tickInterval = setInterval(() => {
       const randomIndex = Math.floor(Math.random() * names.length);
       setSelectedName(names[randomIndex]);
       playTick();
     }, 100);
 
+    const timerInterval = setInterval(() => {
+      setTimeRemaining(prev => Math.max(0, prev - 1));
+    }, 1000);
+
     setTimeout(() => {
       clearInterval(tickInterval);
+      clearInterval(timerInterval);
       const finalIndex = Math.floor(Math.random() * names.length);
       setSelectedName(names[finalIndex]);
       setIsSpinning(false);
+      setTimeRemaining(0);
       playWin();
       confetti({
         particleCount: 100,
@@ -92,7 +101,7 @@ function App() {
             <Button
               onClick={addName}
               disabled={names.length >= 1000}
-              className="flex gap-2"
+              className="flex gap-2 bg-blue-600 hover:bg-blue-700"
             >
               <UserPlus2 className="w-4 h-4" />
               Add Name
@@ -120,7 +129,7 @@ function App() {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeName(name)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 ml-2"
+                      className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 ml-2"
                     >
                       ×
                     </Button>
@@ -135,7 +144,7 @@ function App() {
               size="lg"
               onClick={pickRandomName}
               disabled={isSpinning || names.length === 0}
-              className="w-full max-w-md"
+              className="w-full max-w-md bg-blue-600 hover:bg-blue-700"
             >
               {isSpinning ? (
                 <Clock className="w-5 h-5 animate-spin mr-2" />
@@ -146,7 +155,9 @@ function App() {
             {selectedName && (
               <div className={`text-2xl font-bold text-blue-900 transition-all duration-300 ${isSpinning ? 'animate-pulse' : ''}`}>
                 {isSpinning ? (
-                  "Selecting..."
+                  <>
+                    Selecting... ({timeRemaining}s remaining)
+                  </>
                 ) : (
                   <>
                     And the person selected to be next is:
