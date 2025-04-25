@@ -51,10 +51,10 @@ function App() {
 
   const pickRandomName = () => {
     if (names.length === 0) return;
-    
+
     setIsSpinning(true);
     setTimeRemaining(7);
-    
+
     const tickInterval = setInterval(() => {
       const randomIndex = Math.floor(Math.random() * names.length);
       setSelectedName(names[randomIndex]);
@@ -62,23 +62,36 @@ function App() {
     }, 100);
 
     const timerInterval = setInterval(() => {
-      setTimeRemaining(prev => Math.max(0, prev - 1));
+      setTimeRemaining((prev) => Math.max(0, prev - 1));
     }, 1000);
 
     setTimeout(() => {
       clearInterval(tickInterval);
       clearInterval(timerInterval);
       const finalIndex = Math.floor(Math.random() * names.length);
-      setSelectedName(names[finalIndex]);
+      const finalName = names[finalIndex];
+      setSelectedName(finalName);
+      setNames((prevNames) => prevNames.filter((name) => name !== finalName)); // Remove selected name
       setIsSpinning(false);
       setTimeRemaining(0);
       playWin();
       confetti({
         particleCount: 100,
         spread: 70,
-        origin: { y: 0.6 }
+        origin: { y: 0.6 },
       });
     }, 7000);
+  };
+
+  const resetNames = async () => {
+    try {
+      const response = await fetch('/src/data/initial-names.txt');
+      const text = await response.text();
+      const loadedNames = text.split('\n').filter(name => name.trim() !== '');
+      setNames(loadedNames);
+    } catch (error) {
+      console.error('Error loading names:', error);
+    }
   };
 
   return (
@@ -168,6 +181,14 @@ function App() {
                 )}
               </div>
             )}
+
+            <Button
+              size="lg"
+              onClick={resetNames}
+              className="w-full max-w-md bg-red-600 hover:bg-red-700"
+            >
+              Start Over with Everyone
+            </Button>
           </div>
         </Card>
       </div>
