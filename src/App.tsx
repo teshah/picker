@@ -160,9 +160,9 @@ function App() {
                 {names.map((name, index) => (
                   <div 
                     key={index} 
-                    className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors"
+                    className="flex justify-between items-center py-2 px-2 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors"
                   >
-                    <span className="text-lg truncate">{name}</span>
+                    <span className="text-lg break-words">{name}</span>
                     <Button
                       variant="ghost"
                       size="sm"
