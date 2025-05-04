@@ -146,9 +146,14 @@ function App() {
                 <Users className="w-5 h-5 text-blue-600" />
                 <h2 className="text-lg font-semibold">Participants ({names.length})</h2>
               </div>
-              <Button variant="link" size="sm" onClick={loadHomeNames} className="text-blue-600 hover:text-blue-800">
-                Home
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="link" size="sm" onClick={loadHomeNames} className="text-blue-600 hover:text-blue-800">
+                  Home
+                </Button>
+                <Button variant="link" size="sm" onClick={resetNames} className="text-blue-600 hover:text-blue-800">
+                  Work
+                </Button>
+              </div>
             </div>
             <ScrollArea className="h-[400px] border rounded-md p-4">
               <div className="grid grid-cols-2 gap-4">
@@ -201,14 +206,6 @@ function App() {
                 )}
               </div>
             )}
-
-            <Button
-              size="lg"
-              onClick={resetNames}
-              className="w-full max-w-md bg-red-600 hover:bg-red-700"
-            >
-              Start Over with Everyone
-            </Button>
           </div>
         </Card>
 
