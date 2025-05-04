@@ -25,7 +25,7 @@ function App() {
 
   useEffect(() => {
     // Load initial names from file
-    fetch('/src/data/initial-names.txt')
+    fetch('/initial-names.txt')
       .then(response => response.text())
       .then(text => {
         const loadedNames = text.split('\n').filter(name => name.trim() !== '');
@@ -86,7 +86,7 @@ function App() {
 
   const resetNames = async () => {
     try {
-      const response = await fetch('/src/data/initial-names.txt');
+      const response = await fetch('/initial-names.txt');
       const text = await response.text();
       const loadedNames = text.split('\n').filter(name => name.trim() !== '');
       setNames(loadedNames);
@@ -98,7 +98,7 @@ function App() {
 
   const loadHomeNames = async () => {
     try {
-      const response = await fetch('/src/data/list2.txt');
+      const response = await fetch('/list2.txt');
       const text = await response.text();
       const loadedNames = text.split('\n').filter(name => name.trim() !== '');
       setNames(loadedNames);
