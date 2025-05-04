@@ -96,6 +96,19 @@ function App() {
     }
   };
 
+  const loadHomeNames = async () => {
+    try {
+      const response = await fetch('/src/data/list2.txt');
+      const text = await response.text();
+      const loadedNames = text.split('\n').filter(name => name.trim() !== '');
+      setNames(loadedNames);
+      setSelectedHistory([]); // Clear history when loading home names
+      setSelectedName(null); // Clear selected name as well
+    } catch (error) {
+      console.error('Error loading home names:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 p-8">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -128,9 +141,14 @@ function App() {
           )}
 
           <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Users className="w-5 h-5 text-blue-600" />
-              <h2 className="text-lg font-semibold">Participants ({names.length})</h2>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-blue-600" />
+                <h2 className="text-lg font-semibold">Participants ({names.length})</h2>
+              </div>
+              <Button variant="link" size="sm" onClick={loadHomeNames} className="text-blue-600 hover:text-blue-800">
+                Home
+              </Button>
             </div>
             <ScrollArea className="h-[400px] border rounded-md p-4">
               <div className="grid grid-cols-2 gap-4">
