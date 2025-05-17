@@ -111,7 +111,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8 px-5">
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold text-blue-900">Who is Next?</h1>
           <p className="text-blue-600">Add names to the list and randomly select who goes next!</p>
