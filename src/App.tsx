@@ -8,11 +8,13 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import clsx from 'clsx';
 import { Slider } from '@/components/ui/slider';
+import { SpinningWheel } from '@/components/SpinningWheel';
 
 function App() {
   const [names, setNames] = useState<string[]>([]);
   const [newName, setNewName] = useState('');
   const [isSpinning, setIsSpinning] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [selectedHistory, setSelectedHistory] = useState<string[]>([]);
   const [activeList, setActiveList] = useState<'home' | 'work' | '15' | 'custom'>('home');
   const [justSelected, setJustSelected] = useState<string | null>(null);
@@ -79,19 +81,26 @@ function App() {
     if (unselectedNames.length === 0) return;
 
     setIsSpinning(true);
+    setTimeRemaining(spinDuration);
 
     const tickInterval = setInterval(() => {
       playTick();
     }, 100);
 
+    const timerInterval = setInterval(() => {
+      setTimeRemaining((prev) => Math.max(0, prev - 1));
+    }, 1000);
+
     setTimeout(() => {
       clearInterval(tickInterval);
+      clearInterval(timerInterval);
       const finalIndex = Math.floor(Math.random() * unselectedNames.length);
       const finalName = unselectedNames[finalIndex];
       setJustSelected(finalName); // highlight
       setTimeout(() => setJustSelected(null), 1200); // remove highlight after 1.2s
       setSelectedHistory((prev) => [...prev, finalName]); // Add to history
       setIsSpinning(false);
+      setTimeRemaining(0);
       playWin();
       confetti({
         particleCount: 100,
@@ -148,6 +157,12 @@ function App() {
 
   return (
     <div className="fixed inset-0 bg-gradient-to-b from-blue-50 to-blue-100">
+      <SpinningWheel
+        names={names}
+        isSpinning={isSpinning}
+        timeRemaining={timeRemaining}
+        spinDuration={spinDuration}
+      />
       <div className="min-h-screen w-screen flex items-center justify-center p-0">
         <div className="max-w-4xl w-full flex flex-col justify-center space-y-6 px-1 sm:px-5">
           <div className="text-center space-y-4">

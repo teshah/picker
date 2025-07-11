@@ -98,3 +98,15 @@
 - Removed unused `randomIndex` in the tick interval of the random picker.
 - Confirmed clean build with `npm run build` (no TS errors remain).
 - This change prevents Netlify build failures due to unused variables. 
+
+## [Feature Branch: feature/spinning-wheel-countdown] Add spinning wheel with countdown display
+
+- Created feature branch for spinning wheel implementation.
+- Added `timeRemaining` state to track countdown during spin.
+- Created new `SpinningWheel` component that displays all names in a circular layout.
+- Implemented SVG-based wheel with names arranged around the circle.
+- Added spinning animation that matches the spin duration.
+- Overlaid countdown timer showing remaining seconds in the center.
+- Added semi-transparent overlay when wheel is active.
+- Integrated wheel component into main App with proper state management.
+- Confirmed clean build with no TypeScript errors. 
