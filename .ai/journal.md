@@ -57,7 +57,14 @@
     - Added a unit test to verify random selection is truly random.
     - Updated the '15' button test to check for all names instead of a heading.
 
-11. **Documentation**
+11. **Title Interactions**
+    - Double-clicking 'Randomly' toggles the Custom button.
+    - Double-clicking 'next?' toggles the spin duration slider (time query param).
+
+12. **Mobile-Friendly Participants List**
+    - Made the participants list more mobile-friendly by using responsive font size, reduced padding and gap on mobile, and a more compact scroll area. This ensures all 15 names are visible on devices like the Pixel 9 Pro, and works with the dynamic column setup.
+
+13. **Documentation**
     - Created and updated this journal in `.ai/journal.md` to document the session.
 
 ## Notes

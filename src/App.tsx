@@ -20,12 +20,27 @@ function App() {
   const [justSelected, setJustSelected] = useState<string | null>(null);
   const [spinDuration, setSpinDuration] = useState(7);
   const [showSpinDuration, setShowSpinDuration] = useState(false);
+  const [showCustomButton, setShowCustomButton] = useState(false);
 
   // Show slider only if ?time=true is in the query string
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setShowSpinDuration(params.get('time') === 'true');
   }, []);
+
+  // Toggle time query param and slider
+  const handleTitleDoubleClick = () => {
+    const params = new URLSearchParams(window.location.search);
+    const hasTime = params.get('time') === 'true';
+    if (hasTime) {
+      params.delete('time');
+    } else {
+      params.set('time', 'true');
+    }
+    const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}${window.location.hash}`;
+    window.history.replaceState({}, '', newUrl);
+    setShowSpinDuration(!hasTime);
+  };
   
   const [playTick] = useSound('./tick.mp3', { 
     volume: 0.5
@@ -151,7 +166,23 @@ function App() {
       <div className="min-h-screen w-screen flex items-center justify-center">
         <div className="max-w-4xl w-full space-y-8 px-5">
           <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold text-blue-900">Randomly select who is next?</h1>
+            <h1 className="text-4xl font-bold text-blue-900 select-none">
+              <span
+                className="cursor-pointer hover:underline"
+                onDoubleClick={() => setShowCustomButton((prev) => !prev)}
+                title="Double-click to toggle Custom button"
+              >
+                Randomly
+              </span>{' '}
+              select who is{' '}
+              <span
+                className="cursor-pointer hover:underline"
+                onDoubleClick={handleTitleDoubleClick}
+                title="Double-click to toggle spin duration slider"
+              >
+                next?
+              </span>
+            </h1>
           </div>
 
           <Card className="p-6 bg-white shadow-xl">
@@ -185,7 +216,7 @@ function App() {
 
             <div className="mb-6">
               <div className="flex flex-wrap gap-2 mb-4 justify-center">
-                {['home', 'work', '15', 'custom'].map((key) => (
+                {['home', 'work', '15'].map((key) => (
                   <Button
                     key={key}
                     variant={activeList === key ? 'default' : 'outline'}
@@ -193,8 +224,7 @@ function App() {
                     onClick={
                       key === 'home' ? loadHomeNames :
                       key === 'work' ? resetNames :
-                      key === '15' ? load15Names :
-                      activateCustom
+                      load15Names
                     }
                     className={clsx(
                       'min-w-[80px] font-semibold',
@@ -205,14 +235,29 @@ function App() {
                     {key === '15' ? '15' : key.charAt(0).toUpperCase() + key.slice(1)}
                   </Button>
                 ))}
+                {showCustomButton && (
+                  <Button
+                    key="custom"
+                    variant={activeList === 'custom' ? 'default' : 'outline'}
+                    aria-pressed={activeList === 'custom'}
+                    onClick={activateCustom}
+                    className={clsx(
+                      'min-w-[80px] font-semibold',
+                      activeList === 'custom' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border-blue-600',
+                      'transition-colors duration-200'
+                    )}
+                  >
+                    Custom
+                  </Button>
+                )}
               </div>
-              <ScrollArea className="h-[400px] border rounded-md p-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <ScrollArea className="max-h-[60vh] border rounded-md p-1 sm:p-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
                   {names.map((name, index) => (
                     <div 
-                      key={index} 
+                      key={index}
                       className={clsx(
-                        'flex justify-between items-center py-2 px-2 rounded-md transition-colors',
+                        'flex justify-between items-center py-1 px-1 sm:py-2 sm:px-2 rounded-md transition-colors',
                         selectedHistory.includes(name)
                           ? 'bg-gray-100'
                           : 'bg-gray-50 hover:bg-blue-50',
@@ -221,7 +266,7 @@ function App() {
                     >
                       <span
                         className={clsx(
-                          'text-lg break-words transition-all duration-500',
+                          'text-base sm:text-lg break-words transition-all duration-500',
                           selectedHistory.includes(name) && 'line-through text-gray-400',
                           justSelected === name && 'font-bold text-yellow-700'
                         )}
