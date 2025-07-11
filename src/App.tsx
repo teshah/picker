@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, UserPlus2, Users } from 'lucide-react';
+import { Clock, UserPlus2 } from 'lucide-react';
 import useSound from 'use-sound';
 import confetti from 'canvas-confetti';
 import { Button } from '@/components/ui/button';
