@@ -158,7 +158,6 @@ function App() {
   return (
     <div className="fixed inset-0 bg-gradient-to-b from-blue-50 to-blue-100">
       <SpinningWheel
-        names={names}
         isSpinning={isSpinning}
         timeRemaining={timeRemaining}
         spinDuration={spinDuration}
