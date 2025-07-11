@@ -38,9 +38,27 @@
    - User requested the 'x' button for removing names to be larger and styled to match the theme.
    - Updated the button to use a larger font size, theme color, and added accessibility improvements.
 
-7. **Documentation**
-   - Created this journal in `.ai/journal.md` to document the session.
-   - User requested to expand the journal with a detailed chronological log.
+7. **Participants List & Selection Logic**
+   - Previously selected names are now crossed out in the participants list, with their selection order shown in parentheses.
+   - The remove button is hidden for already selected names.
+   - All names remain visible after selection.
+   - Excluded already selected names from being picked again.
+
+8. **UI/UX Improvements**
+   - Responsive grid for participants list (2 columns mobile, 3 tablet, 4 desktop, 5 xl).
+   - Improved button layout: grouped, highlighted active, responsive.
+   - Visual feedback: highlight and animate newly selected name before crossing out.
+
+9. **Spin Duration Feature**
+   - Added a sleeker, modern slider for spin duration (3–7s) with floating label and tick marks.
+   - Slider only appears if the user visits with `?time=true` in the URL.
+
+10. **Testing**
+    - Added a unit test to verify random selection is truly random.
+    - Updated the '15' button test to check for all names instead of a heading.
+
+11. **Documentation**
+    - Created and updated this journal in `.ai/journal.md` to document the session.
 
 ## Notes
 - Placeholder icons are used for PWA; replace with your own for production.
