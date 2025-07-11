@@ -12,9 +12,7 @@ import { Slider } from '@/components/ui/slider';
 function App() {
   const [names, setNames] = useState<string[]>([]);
   const [newName, setNewName] = useState('');
-  const [selectedName, setSelectedName] = useState<string | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [selectedHistory, setSelectedHistory] = useState<string[]>([]);
   const [activeList, setActiveList] = useState<'home' | 'work' | '15' | 'custom'>('home');
   const [justSelected, setJustSelected] = useState<string | null>(null);
@@ -81,29 +79,19 @@ function App() {
     if (unselectedNames.length === 0) return;
 
     setIsSpinning(true);
-    setTimeRemaining(spinDuration);
 
     const tickInterval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * unselectedNames.length);
-      setSelectedName(unselectedNames[randomIndex]);
       playTick();
     }, 100);
 
-    const timerInterval = setInterval(() => {
-      setTimeRemaining((prev) => Math.max(0, prev - 1));
-    }, 1000);
-
     setTimeout(() => {
       clearInterval(tickInterval);
-      clearInterval(timerInterval);
       const finalIndex = Math.floor(Math.random() * unselectedNames.length);
       const finalName = unselectedNames[finalIndex];
-      setSelectedName(finalName);
       setJustSelected(finalName); // highlight
       setTimeout(() => setJustSelected(null), 1200); // remove highlight after 1.2s
       setSelectedHistory((prev) => [...prev, finalName]); // Add to history
       setIsSpinning(false);
-      setTimeRemaining(0);
       playWin();
       confetti({
         particleCount: 100,
@@ -133,7 +121,6 @@ function App() {
       const loadedNames = text.split('\n').filter(name => name.trim() !== '');
       setNames(loadedNames);
       setSelectedHistory([]); // Clear history when loading home names
-      setSelectedName(null); // Clear selected name as well
       setActiveList('home');
     } catch (error) {
       console.error('Error loading home names:', error);
@@ -147,7 +134,6 @@ function App() {
       const loadedNames = text.split('\n').filter(name => name.trim() !== '');
       setNames(loadedNames);
       setSelectedHistory([]); // Clear history when loading 15 names
-      setSelectedName(null); // Clear selected name as well
       setActiveList('15');
     } catch (error) {
       console.error('Error loading 15 names:', error);
@@ -157,7 +143,6 @@ function App() {
   const activateCustom = () => {
     setNames([]);
     setSelectedHistory([]);
-    setSelectedName(null);
     setActiveList('custom');
   };
 
