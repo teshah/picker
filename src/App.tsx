@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import clsx from 'clsx';
+import { Slider } from '@/components/ui/slider';
 
 function App() {
   const [names, setNames] = useState<string[]>([]);
@@ -14,6 +16,16 @@ function App() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [selectedHistory, setSelectedHistory] = useState<string[]>([]);
+  const [activeList, setActiveList] = useState<'home' | 'work' | '15' | 'custom'>('home');
+  const [justSelected, setJustSelected] = useState<string | null>(null);
+  const [spinDuration, setSpinDuration] = useState(7);
+  const [showSpinDuration, setShowSpinDuration] = useState(false);
+
+  // Show slider only if ?time=true is in the query string
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setShowSpinDuration(params.get('time') === 'true');
+  }, []);
   
   const [playTick] = useSound('./tick.mp3', { 
     volume: 0.5
@@ -50,14 +62,15 @@ function App() {
   };
 
   const pickRandomName = () => {
-    if (names.length === 0) return;
+    const unselectedNames = names.filter((n) => !selectedHistory.includes(n));
+    if (unselectedNames.length === 0) return;
 
     setIsSpinning(true);
-    setTimeRemaining(7);
+    setTimeRemaining(spinDuration);
 
     const tickInterval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * names.length);
-      setSelectedName(names[randomIndex]);
+      const randomIndex = Math.floor(Math.random() * unselectedNames.length);
+      setSelectedName(unselectedNames[randomIndex]);
       playTick();
     }, 100);
 
@@ -68,10 +81,11 @@ function App() {
     setTimeout(() => {
       clearInterval(tickInterval);
       clearInterval(timerInterval);
-      const finalIndex = Math.floor(Math.random() * names.length);
-      const finalName = names[finalIndex];
+      const finalIndex = Math.floor(Math.random() * unselectedNames.length);
+      const finalName = unselectedNames[finalIndex];
       setSelectedName(finalName);
-      setNames((prevNames) => prevNames.filter((name) => name !== finalName));
+      setJustSelected(finalName); // highlight
+      setTimeout(() => setJustSelected(null), 1200); // remove highlight after 1.2s
       setSelectedHistory((prev) => [...prev, finalName]); // Add to history
       setIsSpinning(false);
       setTimeRemaining(0);
@@ -81,7 +95,7 @@ function App() {
         spread: 70,
         origin: { y: 0.6 },
       });
-    }, 7000);
+    }, spinDuration * 1000);
   };
 
   const resetNames = async () => {
@@ -91,6 +105,7 @@ function App() {
       const loadedNames = text.split('\n').filter(name => name.trim() !== '');
       setNames(loadedNames);
       setSelectedHistory([]); // Clear history when resetting
+      setActiveList('work');
     } catch (error) {
       console.error('Error loading names:', error);
     }
@@ -104,12 +119,12 @@ function App() {
       setNames(loadedNames);
       setSelectedHistory([]); // Clear history when loading home names
       setSelectedName(null); // Clear selected name as well
+      setActiveList('home');
     } catch (error) {
       console.error('Error loading home names:', error);
     }
   };
 
-  // Add load15Names function
   const load15Names = async () => {
     try {
       const response = await fetch('/list15.txt');
@@ -118,9 +133,17 @@ function App() {
       setNames(loadedNames);
       setSelectedHistory([]); // Clear history when loading 15 names
       setSelectedName(null); // Clear selected name as well
+      setActiveList('15');
     } catch (error) {
       console.error('Error loading 15 names:', error);
     }
+  };
+
+  const activateCustom = () => {
+    setNames([]);
+    setSelectedHistory([]);
+    setSelectedName(null);
+    setActiveList('custom');
   };
 
   return (
@@ -128,27 +151,32 @@ function App() {
       <div className="min-h-screen w-screen flex items-center justify-center">
         <div className="max-w-4xl w-full space-y-8 px-5">
           <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold text-blue-900">Who is Next?</h1>
-            <p className="text-blue-600">Add names to the list and randomly select who goes next!</p>
+            <h1 className="text-4xl font-bold text-blue-900">Randomly select who is next?</h1>
           </div>
 
           <Card className="p-6 bg-white shadow-xl">
             <div className="flex gap-4 mb-6">
-              <Input
-                placeholder="Enter a name"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addName()}
-                disabled={names.length >= 1000}
-              />
-              <Button
-                onClick={addName}
-                disabled={names.length >= 1000}
-                className="flex gap-2 bg-blue-600 hover:bg-blue-700"
-              >
-                <UserPlus2 className="w-4 h-4" />
-                Add Name
-              </Button>
+              {activeList === 'custom' && (
+                <>
+                  <label className="sr-only" htmlFor="custom-name-input">Add names to this list...</label>
+                  <Input
+                    id="custom-name-input"
+                    placeholder="Enter a name"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addName()}
+                    disabled={names.length >= 1000}
+                  />
+                  <Button
+                    onClick={addName}
+                    disabled={names.length >= 1000}
+                    className="flex gap-2 bg-blue-600 hover:bg-blue-700"
+                  >
+                    <UserPlus2 className="w-4 h-4" />
+                    Add Name
+                  </Button>
+                </>
+              )}
             </div>
 
             {names.length >= 1000 && (
@@ -156,41 +184,73 @@ function App() {
             )}
 
             <div className="mb-6">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-blue-600" />
-                  <h2 className="text-lg font-semibold">Participants ({names.length})</h2>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="link" size="sm" onClick={loadHomeNames} className="text-blue-600 hover:text-blue-800">
-                    Home
+              <div className="flex flex-wrap gap-2 mb-4 justify-center">
+                {['home', 'work', '15', 'custom'].map((key) => (
+                  <Button
+                    key={key}
+                    variant={activeList === key ? 'default' : 'outline'}
+                    aria-pressed={activeList === key}
+                    onClick={
+                      key === 'home' ? loadHomeNames :
+                      key === 'work' ? resetNames :
+                      key === '15' ? load15Names :
+                      activateCustom
+                    }
+                    className={clsx(
+                      'min-w-[80px] font-semibold',
+                      activeList === key ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border-blue-600',
+                      'transition-colors duration-200'
+                    )}
+                  >
+                    {key === '15' ? '15' : key.charAt(0).toUpperCase() + key.slice(1)}
                   </Button>
-                  <Button variant="link" size="sm" onClick={resetNames} className="text-blue-600 hover:text-blue-800">
-                    Work
-                  </Button>
-                  {/* Add 15 button */}
-                  <Button variant="link" size="sm" onClick={load15Names} className="text-blue-600 hover:text-blue-800">
-                    15
-                  </Button>
-                </div>
+                ))}
               </div>
               <ScrollArea className="h-[400px] border rounded-md p-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {names.map((name, index) => (
                     <div 
                       key={index} 
-                      className="flex justify-between items-center py-2 px-2 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors"
+                      className={clsx(
+                        'flex justify-between items-center py-2 px-2 rounded-md transition-colors',
+                        selectedHistory.includes(name)
+                          ? 'bg-gray-100'
+                          : 'bg-gray-50 hover:bg-blue-50',
+                        justSelected === name && 'animate-pulse bg-yellow-100'
+                      )}
                     >
-                      <span className="text-lg break-words">{name}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeName(name)}
-                        className="text-2xl text-blue-700 hover:text-blue-900 font-bold ml-2"
-                        aria-label="Remove name"
+                      <span
+                        className={clsx(
+                          'text-lg break-words transition-all duration-500',
+                          selectedHistory.includes(name) && 'line-through text-gray-400',
+                          justSelected === name && 'font-bold text-yellow-700'
+                        )}
+                        aria-label={selectedHistory.includes(name) ? 'Previously selected' : undefined}
                       >
-                        ×
-                      </Button>
+                        {name}
+                        {selectedHistory.includes(name) && (
+                          <span className="ml-2 text-xs text-gray-400">
+                            ({(() => {
+                              const idx = selectedHistory.indexOf(name);
+                              if (idx === 0) return '1st';
+                              if (idx === 1) return '2nd';
+                              if (idx === 2) return '3rd';
+                              return `${idx + 1}th`;
+                            })()})
+                          </span>
+                        )}
+                      </span>
+                      {!selectedHistory.includes(name) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeName(name)}
+                          className="text-2xl text-blue-700 hover:text-blue-900 font-bold ml-2"
+                          aria-label="Remove name"
+                        >
+                          ×
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -198,17 +258,47 @@ function App() {
             </div>
 
             <div className="text-center space-y-6">
-              <Button
-                size="lg"
-                onClick={pickRandomName}
-                disabled={isSpinning || names.length === 0}
-                className="w-full max-w-md bg-blue-600 hover:bg-blue-700"
-              >
-                {isSpinning ? (
-                  <Clock className="w-5 h-5 animate-spin mr-2" />
-                ) : null}
-                Pick Random Name
-              </Button>
+              <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+                <Button
+                  size="lg"
+                  onClick={pickRandomName}
+                  disabled={isSpinning || names.filter((n) => !selectedHistory.includes(n)).length === 0}
+                  className="w-full max-w-md bg-blue-600 hover:bg-blue-700"
+                >
+                  {isSpinning ? (
+                    <Clock className="w-5 h-5 animate-spin mr-2" />
+                  ) : null}
+                  Pick Random Name
+                </Button>
+                {showSpinDuration && (
+                  <div className="flex flex-col items-center w-full max-w-xs mt-4 md:mt-0">
+                    <div className="relative w-full flex items-center justify-center mb-2">
+                      {/* Floating label above thumb */}
+                      <span
+                        className="absolute left-1/2 -translate-x-1/2 -top-7 text-blue-700 text-base font-bold bg-white px-2 py-0.5 rounded shadow"
+                        style={{ minWidth: 40 }}
+                      >
+                        {spinDuration}s
+                      </span>
+                    </div>
+                    <Slider
+                      min={3}
+                      max={7}
+                      step={1}
+                      value={[spinDuration]}
+                      onValueChange={([v]) => setSpinDuration(v)}
+                      className="w-full h-2 bg-blue-200 rounded-full relative"
+                      aria-label="Spin duration in seconds"
+                      style={{ accentColor: '#2563eb' }}
+                    />
+                    <div className="flex justify-between w-full mt-1 text-xs text-blue-700 font-medium">
+                      {[3, 4, 5, 6, 7].map((sec) => (
+                        <span key={sec}>{sec}s</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {selectedName && (
                 <div className={`text-2xl font-bold text-blue-900 transition-all duration-300 ${isSpinning ? 'animate-pulse' : ''}`}>
@@ -228,19 +318,6 @@ function App() {
               )}
             </div>
           </Card>
-
-          {selectedHistory.length > 0 && (
-            <Card className="mt-8 p-6 bg-white shadow-xl">
-              <h2 className="text-xl font-semibold text-blue-900 mb-4">Previously Selected Names:</h2>
-              <div className="text-gray-600">
-                {selectedHistory.map((name, index) => (
-                  <div key={index} className="py-1">
-                    {index + 1}. {name}
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
         </div>
       </div>
     </div>
