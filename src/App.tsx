@@ -163,10 +163,10 @@ function App() {
 
   return (
     <div className="fixed inset-0 bg-gradient-to-b from-blue-50 to-blue-100">
-      <div className="min-h-screen w-screen flex items-center justify-center">
-        <div className="max-w-4xl w-full space-y-8 px-5">
+      <div className="min-h-screen w-screen flex items-center justify-center p-0">
+        <div className="max-w-4xl w-full flex flex-col justify-center space-y-6 px-1 sm:px-5">
           <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold text-blue-900 select-none">
+            <h1 className="text-4xl font-extrabold text-blue-700 drop-shadow-lg select-none">
               <span
                 className="cursor-pointer hover:underline"
                 onDoubleClick={() => setShowCustomButton((prev) => !prev)}
@@ -183,126 +183,122 @@ function App() {
                 next?
               </span>
             </h1>
-          </div>
-
-          <Card className="p-6 bg-white shadow-xl">
-            <div className="flex gap-4 mb-6">
-              {activeList === 'custom' && (
-                <>
-                  <label className="sr-only" htmlFor="custom-name-input">Add names to this list...</label>
-                  <Input
-                    id="custom-name-input"
-                    placeholder="Enter a name"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addName()}
-                    disabled={names.length >= 1000}
-                  />
-                  <Button
-                    onClick={addName}
-                    disabled={names.length >= 1000}
-                    className="flex gap-2 bg-blue-600 hover:bg-blue-700"
-                  >
-                    <UserPlus2 className="w-4 h-4" />
-                    Add Name
-                  </Button>
-                </>
+            <div className="flex flex-wrap gap-2 mt-4 justify-center">
+              {['home', 'work', '15'].map((key) => (
+                <Button
+                  key={key}
+                  variant={activeList === key ? 'default' : 'outline'}
+                  aria-pressed={activeList === key}
+                  onClick={
+                    key === 'home' ? loadHomeNames :
+                    key === 'work' ? resetNames :
+                    load15Names
+                  }
+                  className={clsx(
+                    'min-w-[80px] font-semibold',
+                    activeList === key ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border-blue-600',
+                    'transition-colors duration-200'
+                  )}
+                >
+                  {key === '15' ? '15' : key.charAt(0).toUpperCase() + key.slice(1)}
+                </Button>
+              ))}
+              {showCustomButton && (
+                <Button
+                  key="custom"
+                  variant={activeList === 'custom' ? 'default' : 'outline'}
+                  aria-pressed={activeList === 'custom'}
+                  onClick={activateCustom}
+                  className={clsx(
+                    'min-w-[80px] font-semibold',
+                    activeList === 'custom' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border-blue-600',
+                    'transition-colors duration-200'
+                  )}
+                >
+                  Custom
+                </Button>
               )}
             </div>
+          </div>
+
+          <Card className="p-4 sm:p-6 bg-blue-50 min-h-[70vh] flex flex-col border-none shadow-none">
+            {activeList === 'custom' && (
+              <div className="flex gap-4 mb-6">
+                <label className="sr-only" htmlFor="custom-name-input">Add names to this list...</label>
+                <Input
+                  id="custom-name-input"
+                  placeholder="Enter a name"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addName()}
+                  disabled={names.length >= 1000}
+                />
+                <Button
+                  onClick={addName}
+                  disabled={names.length >= 1000}
+                  className="flex gap-2 bg-blue-600 hover:bg-blue-700"
+                >
+                  <UserPlus2 className="w-4 h-4" />
+                  Add Name
+                </Button>
+              </div>
+            )}
 
             {names.length >= 1000 && (
               <p className="text-red-500 mb-4">Maximum limit of 1000 names reached!</p>
             )}
 
-            <div className="mb-6">
-              <div className="flex flex-wrap gap-2 mb-4 justify-center">
-                {['home', 'work', '15'].map((key) => (
-                  <Button
-                    key={key}
-                    variant={activeList === key ? 'default' : 'outline'}
-                    aria-pressed={activeList === key}
-                    onClick={
-                      key === 'home' ? loadHomeNames :
-                      key === 'work' ? resetNames :
-                      load15Names
-                    }
+            <ScrollArea className="max-h-[60vh] border rounded-md p-1 sm:p-4 flex-1">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
+                {names.map((name, index) => (
+                  <div 
+                    key={index}
                     className={clsx(
-                      'min-w-[80px] font-semibold',
-                      activeList === key ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border-blue-600',
-                      'transition-colors duration-200'
+                      'flex justify-between items-center py-1 px-1 sm:py-2 sm:px-2 rounded-md transition-colors',
+                      selectedHistory.includes(name)
+                        ? 'bg-indigo-100'
+                        : 'bg-indigo-50 hover:bg-indigo-100',
+                      justSelected === name && 'animate-pulse bg-yellow-100'
                     )}
                   >
-                    {key === '15' ? '15' : key.charAt(0).toUpperCase() + key.slice(1)}
-                  </Button>
-                ))}
-                {showCustomButton && (
-                  <Button
-                    key="custom"
-                    variant={activeList === 'custom' ? 'default' : 'outline'}
-                    aria-pressed={activeList === 'custom'}
-                    onClick={activateCustom}
-                    className={clsx(
-                      'min-w-[80px] font-semibold',
-                      activeList === 'custom' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border-blue-600',
-                      'transition-colors duration-200'
-                    )}
-                  >
-                    Custom
-                  </Button>
-                )}
-              </div>
-              <ScrollArea className="max-h-[60vh] border rounded-md p-1 sm:p-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
-                  {names.map((name, index) => (
-                    <div 
-                      key={index}
+                    <span
                       className={clsx(
-                        'flex justify-between items-center py-1 px-1 sm:py-2 sm:px-2 rounded-md transition-colors',
-                        selectedHistory.includes(name)
-                          ? 'bg-gray-100'
-                          : 'bg-gray-50 hover:bg-blue-50',
-                        justSelected === name && 'animate-pulse bg-yellow-100'
+                        'text-base sm:text-lg break-words transition-all duration-500',
+                        selectedHistory.includes(name) && 'line-through text-gray-400',
+                        justSelected === name && 'font-bold text-yellow-700'
                       )}
+                      aria-label={selectedHistory.includes(name) ? 'Previously selected' : undefined}
                     >
-                      <span
-                        className={clsx(
-                          'text-base sm:text-lg break-words transition-all duration-500',
-                          selectedHistory.includes(name) && 'line-through text-gray-400',
-                          justSelected === name && 'font-bold text-yellow-700'
-                        )}
-                        aria-label={selectedHistory.includes(name) ? 'Previously selected' : undefined}
-                      >
-                        {name}
-                        {selectedHistory.includes(name) && (
-                          <span className="ml-2 text-xs text-gray-400">
-                            ({(() => {
-                              const idx = selectedHistory.indexOf(name);
-                              if (idx === 0) return '1st';
-                              if (idx === 1) return '2nd';
-                              if (idx === 2) return '3rd';
-                              return `${idx + 1}th`;
-                            })()})
-                          </span>
-                        )}
-                      </span>
-                      {!selectedHistory.includes(name) && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeName(name)}
-                          className="text-2xl text-blue-700 hover:text-blue-900 font-bold ml-2"
-                          aria-label="Remove name"
-                        >
-                          ×
-                        </Button>
+                      {name}
+                      {selectedHistory.includes(name) && (
+                        <span className="ml-2 text-xs text-gray-400">
+                          ({(() => {
+                            const idx = selectedHistory.indexOf(name);
+                            if (idx === 0) return '1st';
+                            if (idx === 1) return '2nd';
+                            if (idx === 2) return '3rd';
+                            return `${idx + 1}th`;
+                          })()})
+                        </span>
                       )}
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
+                    </span>
+                    {!selectedHistory.includes(name) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeName(name)}
+                        className="text-2xl text-indigo-500 hover:text-indigo-700 font-bold ml-2"
+                        aria-label="Remove name"
+                      >
+                        ×
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
 
-            <div className="text-center space-y-6">
+            <div className="mt-auto pt-4 flex flex-col items-center">
               <div className="flex flex-col md:flex-row items-center justify-center gap-4">
                 <Button
                   size="lg"
@@ -344,23 +340,6 @@ function App() {
                   </div>
                 )}
               </div>
-
-              {selectedName && (
-                <div className={`text-2xl font-bold text-blue-900 transition-all duration-300 ${isSpinning ? 'animate-pulse' : ''}`}>
-                  {isSpinning ? (
-                    <>
-                      Selecting... ({timeRemaining}s remaining)
-                    </>
-                  ) : (
-                    <>
-                      And the person selected to be next is:
-                      <div className="text-3xl text-blue-600 mt-2">
-                        {selectedName}
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
             </div>
           </Card>
         </div>
