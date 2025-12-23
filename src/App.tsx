@@ -14,7 +14,7 @@ function App() {
   const [newName, setNewName] = useState('');
   const [isSpinning, setIsSpinning] = useState(false);
   const [selectedHistory, setSelectedHistory] = useState<string[]>([]);
-  const [activeList, setActiveList] = useState<'home' | 'work' | '15' | 'custom'>('home');
+  const [activeList, setActiveList] = useState<'home' | 'work' | '15' | '16' | 'custom'>('home');
   const [justSelected, setJustSelected] = useState<string | null>(null);
   const [spinDuration, setSpinDuration] = useState(7);
   const [showSpinDuration, setShowSpinDuration] = useState(false);
@@ -39,18 +39,18 @@ function App() {
     window.history.replaceState({}, '', newUrl);
     setShowSpinDuration(!hasTime);
   };
-  
-  const [playTick] = useSound('./tick.mp3', { 
+
+  const [playTick] = useSound('./tick.mp3', {
     volume: 0.5
   });
-  
-  const [playWin] = useSound('./win.mp3', { 
+
+  const [playWin] = useSound('./win.mp3', {
     volume: 0.5
   });
 
   useEffect(() => {
     // Load initial names from file
-    fetch('/initial-names.txt')
+    fetch('/work.txt')
       .then(response => response.text())
       .then(text => {
         const loadedNames = text.split('\n').filter(name => name.trim() !== '');
@@ -103,7 +103,7 @@ function App() {
 
   const resetNames = async () => {
     try {
-      const response = await fetch('/initial-names.txt');
+      const response = await fetch('/work.txt');
       const text = await response.text();
       const loadedNames = text.split('\n').filter(name => name.trim() !== '');
       setNames(loadedNames);
@@ -116,7 +116,7 @@ function App() {
 
   const loadHomeNames = async () => {
     try {
-      const response = await fetch('/list2.txt');
+      const response = await fetch('/home.txt');
       const text = await response.text();
       const loadedNames = text.split('\n').filter(name => name.trim() !== '');
       setNames(loadedNames);
@@ -137,6 +137,19 @@ function App() {
       setActiveList('15');
     } catch (error) {
       console.error('Error loading 15 names:', error);
+    }
+  };
+
+  const load16Names = async () => {
+    try {
+      const response = await fetch('/list16.txt');
+      const text = await response.text();
+      const loadedNames = text.split('\n').filter(name => name.trim() !== '');
+      setNames(loadedNames);
+      setSelectedHistory([]); // Clear history when loading 16 names
+      setActiveList('16');
+    } catch (error) {
+      console.error('Error loading 16 names:', error);
     }
   };
 
@@ -169,7 +182,7 @@ function App() {
               </span>
             </h1>
             <div className="flex flex-wrap gap-2 mt-4 justify-center">
-              {['home', 'work', '15'].map((key) => (
+              {['home', 'work', '15', '16'].map((key) => (
                 <Button
                   key={key}
                   variant={activeList === key ? 'default' : 'outline'}
@@ -177,7 +190,8 @@ function App() {
                   onClick={
                     key === 'home' ? loadHomeNames :
                     key === 'work' ? resetNames :
-                    load15Names
+                    key === '15' ? load15Names :
+                    load16Names
                   }
                   className={clsx(
                     'min-w-[80px] font-semibold',
@@ -185,7 +199,7 @@ function App() {
                     'transition-colors duration-200'
                   )}
                 >
-                  {key === '15' ? '15' : key.charAt(0).toUpperCase() + key.slice(1)}
+                  {key === '15' || key === '16' ? key : key.charAt(0).toUpperCase() + key.slice(1)}
                 </Button>
               ))}
               {showCustomButton && (
@@ -236,7 +250,7 @@ function App() {
             <ScrollArea className="max-h-[60vh] border rounded-md p-1 sm:p-4 flex-1">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
                 {names.map((name, index) => (
-                  <div 
+                  <div
                     key={index}
                     className={clsx(
                       'flex justify-between items-center py-1 px-1 sm:py-2 sm:px-2 rounded-md transition-colors',
