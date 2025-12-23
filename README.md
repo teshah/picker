@@ -3,21 +3,17 @@
 # Project Setup
 
 To build and run the project, follow these steps:
-1. Install React
+1. Install dependencies using Bun:
    ```sh
-   npm install -g pnpm
-   pnpm add @vitejs/plugin-react --save-dev
+   bun install
    ```
 
 2. Build the project using Vite:
    ```sh
-   npx vite build
+   bun run build
    ```
 
 3. Run it
    ```sh
-   npm run dev
-   or
-   pnpm run dev
+   bun run dev
    ```
-
